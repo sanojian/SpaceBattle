@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--
+	Mutiplayer Space Battle - an HTML5 game
+	Copyright (C) 2014 Jonas "sanojian" Olmstead
+
+	Artwork - Oryx (http://oryxdesignlab.com/)
+	Music - Deceased Superior Technician (http://www.nosoapradio.us/)
+
+	Thanks for buzzjs, craftyjs!
+-->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Space Battle</title>
+    <script type="text/javascript" src="./includes/crafty.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="./public/js/game.js"></script>
+    <script type="text/javascript" src="./includes/buzz.min.js"></script>
+
+    <link href='./public/css/style.css' rel='stylesheet' type='text/css'>
+    <!--link href='//fonts.googleapis.com/css?family=IM+Fell+Double+Pica+SC' rel='stylesheet' type='text/css'-->
+
+    <script language="javascript">
+        "use strict";
+
+
+        var RENDERING_MODE = 'DOM';//'Canvas';
+        var GAME_FONT = 'Helvetica'; //'"IM Fell Double Pica SC", serif';
+        var ZOOM = 2;
+        var TILE_SIZE = 8*ZOOM;
+        var VIEW_WIDTH = 800;
+        var VIEW_HEIGHT = 480;
+
+        window.g_game = {
+            collideEffects: {
+                objArray: [],
+                cursor: 0,
+                getNextEffect: function () {
+                    g_game.collideEffects.cursor = (g_game.collideEffects.cursor + 1) % g_game.collideEffects.objArray.length;
+                    return g_game.collideEffects.objArray[g_game.collideEffects.cursor];
+                }
+            },
+            exhaustEffects: {
+                objArray: [],
+                cursor: 0,
+                getNextEffect: function () {
+                    g_game.exhaustEffects.cursor = (g_game.exhaustEffects.cursor + 1) % g_game.exhaustEffects.objArray.length;
+                    return g_game.exhaustEffects.objArray[g_game.exhaustEffects.cursor];
+                }
+            },
+            parts: {},
+            sounds: {},
+            music: {},
+            curLevel: 0,
+            defines: {}
+        };
+        window.addEventListener("load", function(event) {
+
+            VIEW_WIDTH = $(document).width();
+            VIEW_HEIGHT = $(document).height();
+            Crafty.init(VIEW_WIDTH, VIEW_HEIGHT);
+
+            init_GUI();
+            initCrafty_Ships();
+            initCrafty_Fx();
+            initCrafty_World();
+            initCrafty_Scenes();
+
+            Crafty.scene('loading');
+
+        });
+
+    </script>
+
+
+<body unselectable="on" onselectstart="return false;">
+    <div id="divGUI">
+        <canvas id="canvasMiniMap"></canvas>
+    </div>
+</body>
