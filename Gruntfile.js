@@ -8,6 +8,29 @@ module.exports = function(grunt) {
 	// Project configuration.
 	grunt.initConfig({
 
+		develop: {
+			server: {
+				file: 'server.js'
+				//nodeArgs: ['--debug'],            // optional
+				//args: ['appArg1', 'appArg2']      // optional
+			}
+		},
+		express: {
+			options: {
+				hostname: "0.0.0.0",
+				port:5000
+			},
+			livereload: {
+				options: {
+					//script:'app.js',
+					server: path.resolve('./server.js'),
+					bases: [path.resolve('./public')],
+					livereload: true
+					//serverreload: true
+
+				}
+			}
+		},
 		watch: {
 			less: {
 				files: [
@@ -47,6 +70,7 @@ module.exports = function(grunt) {
 	// These plugins provide necessary tasks.
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.registerTask('server', [
+		'express:livereload',
 		'watch'
 	]);
 	grunt.registerTask('build', ['less','concat']);
