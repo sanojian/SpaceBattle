@@ -61,6 +61,12 @@ function initCrafty_Ships() {
 			var vX = 1 * Math.cos(this.rotation * Math.PI / 180);
 			this.direction.setValues(vX, vY);
 		},
+		setVelocity: function(dir, vel) {
+			this.direction = dir;
+			this.velocity = new Crafty.math.Vector2D(vel.x, vel.y);
+			var rads = Math.atan2(dir.y, dir.x);
+			this.rotation = (rads * 180/Math.PI) % 360;
+		},
 		takeDamage: function (amt) {
 			if (this.shield && this.shieldPart.power > 20) {
 				this.shieldPart.changePower(-amt * 20);

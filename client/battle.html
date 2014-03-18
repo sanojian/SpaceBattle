@@ -11,13 +11,13 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title>Space Battle</title>
-    <script type="text/javascript" src="/includes/crafty.js"></script>
-    <script src="/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script type="text/javascript" src="/public/js/game.js"></script>
+    <script type="text/javascript" src="/js/game.js"></script>
     <script type="text/javascript" src="/includes/buzz.min.js"></script>
+    <script type="text/javascript" src="/includes/socket.io.min.js"></script>
+    <script type="text/javascript" src="/includes/crafty.js"></script>
 
-    <link href='/public/css/style.css' rel='stylesheet' type='text/css'>
+    <link href='/css/style.css' rel='stylesheet' type='text/css'>
     <!--link href='//fonts.googleapis.com/css?family=IM+Fell+Double+Pica+SC' rel='stylesheet' type='text/css'-->
 
     <script language="javascript">
@@ -66,8 +66,8 @@
             initCrafty_World();
             initCrafty_Scenes();
 
-            var comm = new Comm();
-            comm.connect();
+            g_game.comm = new Comm();
+            g_game.comm.connect();
 
             Crafty.scene('loading');
 

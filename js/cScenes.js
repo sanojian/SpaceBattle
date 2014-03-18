@@ -2,7 +2,7 @@ function initCrafty_Scenes() {
 
 
 	Crafty.scene('space', function () {
-		Crafty.background('url(./public/images/background.png)');
+		Crafty.background('url(./images/background.png)');
 
 		g_game.$stage = $('#cr-stage');
 
@@ -22,7 +22,9 @@ function initCrafty_Scenes() {
 		Crafty.viewport.clampToEntities = false;
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 
-
+		setInterval(function() {
+			g_game.socket.emit('updateLoc', { x: g_game.player.x, y: g_game.player.y, direction: g_game.player.direction, velocity: { x: g_game.player.velocity.x, y : g_game.player.velocity.y }});
+		}, 250);
 	});
 
 	Crafty.scene("loading", function () {
@@ -44,13 +46,14 @@ function initCrafty_Scenes() {
 			});
 
 
-		Crafty.load([	'./public/images/lofi_scifi_v2_x' + ZOOM + '.png'], function() {
+		Crafty.load([	'./images/lofi_scifi_v2_x' + ZOOM + '.png'], function() {
 
-			Crafty.sprite(TILE_SIZE, './public/images/lofi_scifi_v2_x' + ZOOM + '.png', {
-				ship: [2 , 34]
+			Crafty.sprite(TILE_SIZE, './images/lofi_scifi_v2_x' + ZOOM + '.png', {
+				ship: [2 , 34],
+				ship2: [10, 34]
 			});
 
-			Crafty.sprite(1, './public/images/lofi_scifi_v2_x' + ZOOM + '.png', {
+			Crafty.sprite(1, './images/lofi_scifi_v2_x' + ZOOM + '.png', {
 				exhaust: [163 * ZOOM, 612 * ZOOM, 1 * ZOOM, 1 * ZOOM],
 				pellet: [7 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
 				plasma: [8 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],

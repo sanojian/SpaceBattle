@@ -8,7 +8,6 @@ var app = module.exports = express();
 // all environments
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
 app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.json());
@@ -28,11 +27,21 @@ var server = http.createServer(app);
 server.listen(app.get('port'), function(){
 	console.log('Express server listening on port ' + app.get('port'));
 
-	var io = socketio.listen(server, { log: true });
+});
 
+var io = socketio.listen(server, { log: false });
 
-	io.sockets.on('connection', function (socket) {
-		console.log('connection');
+var players = [];
+
+io.sockets.on('connection', function (socket) {
+	var id = players.length;
+	players.push({ id: id, x: 0, y: 0 });
+	socket.on('updateLoc', function (data) {
+		players[id].x = data.x;
+		players[id].y = data.y;
+		players[id].direction = data.direction;
+		players[id].velocity = data.velocity;
+		socket.broadcast.emit('loc', players[id]);
 	});
 });
 
