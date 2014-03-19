@@ -35,16 +35,17 @@ var players = [];
 
 io.sockets.on('connection', function (socket) {
 	var id = players.length;
-	players.push({ id: id, x: 0, y: 0 });
+	players.push({ id: id, x: 0, y: 0, hp: 3, socket: socket });
 
 	socket.emit('my_id', { id: id });
 
 	socket.on('updateLoc', function (data) {
+		data.id = id;
 		players[id].x = data.x;
 		players[id].y = data.y;
 		players[id].direction = data.direction;
 		players[id].velocity = data.velocity;
-		socket.broadcast.emit('loc', players[id]);
+		socket.broadcast.emit('loc', data);
 	});
 
 	socket.on('fire', function (data) {
@@ -55,6 +56,11 @@ io.sockets.on('connection', function (socket) {
 	socket.on('hit', function (data) {
 		data.ownerId = id;
 		socket.broadcast.emit('bullet_hit', data);
+		players[data.shipId].hp -= 1;
+		players[data.shipId].socket.emit('change', { hp: players[data.shipId].hp });
+		if (players[data.shipId].hp <= 0) {
+			io.sockets.emit('die', { playerId: data.shipId });
+		}
 	});
 
 });

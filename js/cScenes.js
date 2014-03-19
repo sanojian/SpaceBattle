@@ -22,9 +22,6 @@ function initCrafty_Scenes() {
 		Crafty.viewport.clampToEntities = false;
 		Crafty.viewport.follow(g_game.player, g_game.player.w / 2, g_game.player.h / 2);
 
-		setInterval(function() {
-			g_game.socket.emit('updateLoc', { x: g_game.player.x, y: g_game.player.y, direction: g_game.player.direction, velocity: { x: g_game.player.velocity.x, y : g_game.player.velocity.y }});
-		}, 250);
 	});
 
 	Crafty.scene("loading", function () {
@@ -50,7 +47,8 @@ function initCrafty_Scenes() {
 
 			Crafty.sprite(TILE_SIZE, './images/lofi_scifi_v2_x' + ZOOM + '.png', {
 				ship: [2 , 34],
-				ship2: [10, 34]
+				ship2: [10, 34],
+				debris: [28, 79]
 			});
 
 			Crafty.sprite(1, './images/lofi_scifi_v2_x' + ZOOM + '.png', {

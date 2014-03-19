@@ -87,6 +87,7 @@ function initCrafty_Ships() {
 	});
 
 	Crafty.c('PlayerShip', {
+		hp: 3,
 
 		PlayerShip: function (x, y) {
 			this.requires('Keyboard, Ship')
@@ -119,12 +120,16 @@ function initCrafty_Ships() {
 						this.fireCannon();
 					}
 
+					if (frameObj.frame % 10 == 0) {
+						g_game.socket.emit('updateLoc', { x: g_game.player.x, y: g_game.player.y, direction: g_game.player.direction, velocity: { x: g_game.player.velocity.x, y : g_game.player.velocity.y }});
+					};
 
 					//if (frameObj.frame % 10 == 0) {
 					//	for (var i = 0; i < g_game.shipSlots.length; i++) {
 					//		g_game.shipSlots[i].tick();
 					//	}
 					//}
+
 
 					g_game.$stage.css('background-position', '' + Math.floor(-this.x / 4) + 'px ' + Math.floor(-this.y / 4) + 'px');
 					updateMiniMap();
@@ -148,6 +153,10 @@ function initCrafty_Ships() {
 					this.shipConfiguration[g_game.shipSlots[i].part.type].push(g_game.shipSlots[i].part);
 				}
 			}
+		},
+		changeAttrib: function(data) {
+			this.hp = data.hp;
+			console.log(this.hp);
 		},
 		fireCannon: function() {
 			if (this.readyToFire) {
@@ -183,7 +192,8 @@ function initCrafty_Ships() {
 							//	hits[0].obj.takeDamage(def.damage);
 							//}
 							//g_game.sounds[def.sound_hit].play();
-							g_game.socket.emit('hit', { bulletId: this.bulletId });
+							g_game.socket.emit('hit', { bulletId: this.bulletId, shipId: hits[0].obj.shipId });
+							Crafty.e('Debris').Debris(this.x, this.y, hits[0].obj.velocity);
 							this.destroy();
 							return;
 						}
