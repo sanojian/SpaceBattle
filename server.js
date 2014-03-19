@@ -36,6 +36,9 @@ var players = [];
 io.sockets.on('connection', function (socket) {
 	var id = players.length;
 	players.push({ id: id, x: 0, y: 0 });
+
+	socket.emit('my_id', { id: id });
+
 	socket.on('updateLoc', function (data) {
 		players[id].x = data.x;
 		players[id].y = data.y;
@@ -43,5 +46,16 @@ io.sockets.on('connection', function (socket) {
 		players[id].velocity = data.velocity;
 		socket.broadcast.emit('loc', players[id]);
 	});
+
+	socket.on('fire', function (data) {
+		data.ownerId = id;
+		socket.broadcast.emit('bullet', data);
+	});
+
+	socket.on('hit', function (data) {
+		data.ownerId = id;
+		socket.broadcast.emit('bullet_hit', data);
+	});
+
 });
 

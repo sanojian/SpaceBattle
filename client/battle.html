@@ -48,6 +48,12 @@
                     return g_game.exhaustEffects.objArray[g_game.exhaustEffects.cursor];
                 }
             },
+            nextBulletId: 0,
+            getNextBulletId: function() {
+                g_game.nextBulletId = (g_game.nextBulletId + 1) % 1000;
+                return g_game.nextBulletId;
+            },
+            bullets: [],
             parts: {},
             sounds: {},
             music: {},

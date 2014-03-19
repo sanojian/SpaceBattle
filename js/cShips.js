@@ -83,16 +83,6 @@ function initCrafty_Ships() {
 					this.destroy();
 				}
 			}
-		},
-		fireCannon: function() {
-			if (this.readyToFire) {
-				this.readyToFire = false;
-				Crafty.e('Bullet').Bullet(this.x, this.y, this.direction, this.velocity, this[0], {sprite: 'plasma'})
-				var self = this;
-				this.delay(function() {
-					this.readyToFire = true;
-				}, 250);
-			}
 		}
 	});
 
@@ -145,18 +135,6 @@ function initCrafty_Ships() {
 					//}
 				})
 
-			/*g_game.$stage.bind('mousedown', function(evt) {
-				var pos = $(this).offset();
-				var craftyX = evt.offsetX || evt.pageX - pos.left;
-				var craftyY = evt.offsetY || evt.pageY - pos.top;
-
-				var dx = craftyX - g_game.player.x - Crafty.viewport.x;
-				var dy = craftyY - g_game.player.y - Crafty.viewport.y;
-				var direction = new Crafty.math.Vector2D(dx, dy).scaleToMagnitude(1);
-				//g_game.sounds.shoot.play();
-				Crafty.e('Bullet').Bullet(g_game.player.x, g_game.player.y, direction, g_game.player[0], {sprite: 'pellet'});
-			});*/
-
 			return this;
 		},
 		reconfigureShip: function() {
@@ -170,41 +148,70 @@ function initCrafty_Ships() {
 					this.shipConfiguration[g_game.shipSlots[i].part.type].push(g_game.shipSlots[i].part);
 				}
 			}
+		},
+		fireCannon: function() {
+			if (this.readyToFire) {
+				this.readyToFire = false;
+				var bulletId = g_game.getNextBulletId();
+				Crafty.e('MyBullet').MyBullet(this.x, this.y, this.direction, this.velocity, this[0], {sprite: 'plasma'}).bulletId = bulletId;
+				g_game.socket.emit('fire', {
+					x: this.x,
+					y: this.y,
+					bulletId: bulletId,
+					direction: this.direction,
+					velocity: { x: this.velocity.x, y : this.velocity.y }
+				});
+				var self = this;
+				this.delay(function() {
+					this.readyToFire = true;
+				}, 250);
+			}
 		}
+	});
+
+
+	Crafty.c('MyBullet', {
+		MyBullet: function (x, y, dir, vel, sourceId, def) {
+			this.requires('Bullet, Collision')
+				.Bullet(x, y, dir, vel, def)
+				.collision()
+				.bind('EnterFrame', function (frameObj) {
+					var hits = this.hit('solid');
+					if (hits) {
+						if (hits[0].obj[0] != sourceId) {
+							//if (hits[0].obj.has('Ship')) {
+							//	hits[0].obj.takeDamage(def.damage);
+							//}
+							//g_game.sounds[def.sound_hit].play();
+							g_game.socket.emit('hit', { bulletId: this.bulletId });
+							this.destroy();
+							return;
+						}
+					}
+				});
+
+			return this;
+		}
+
 	});
 
 	Crafty.c('Bullet', {
 		range: 1000,
 		speed: 10,
 
-		Bullet: function (x, y, dir, vel, sourceId, def) {
-			this.requires('2D, ' + RENDERING_MODE + ', Collision, ' + def.sprite)
+		Bullet: function (x, y, dir, vel, def) {
+			this.requires('2D, ' + RENDERING_MODE + ', ' + def.sprite)
 				.attr({
 					x: x,
 					y: y,
 					z: 100
 				})
-				.collision()
 				.bind('EnterFrame', function (frameObj) {
 					this.attr({
 						x: this.x + this.velocity.x,
 						y: this.y + this.velocity.y
 					});
 					this.travelled += Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
-					var hits = this.hit('solid');
-					if (hits) {
-						if (hits[0].obj[0] != sourceId) {
-							if (hits[0].obj.has('Ship')) {
-								hits[0].obj.takeDamage(def.damage);
-							}
-							else if (hits[0].obj.has('Mob')) {
-								hits[0].obj.takeDamage(def.damage);
-							}
-							g_game.sounds[def.sound_hit].play();
-							this.destroy();
-							return;
-						}
-					}
 					if (this.travelled > this.range) {
 						this.destroy();
 					}
