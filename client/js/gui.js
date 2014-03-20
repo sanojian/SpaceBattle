@@ -15,6 +15,13 @@ function init_GUI() {
 
 }
 
+function showHealth(hp, maxHp) {
+	var percent = Math.floor(100*hp/maxHp);
+	$('#divHits').css({
+		width: '' + percent + '%'
+	});
+}
+
 function updateMiniMap() {
 	var drawingCanvas = document.getElementById('canvasMiniMap');
 	var context = drawingCanvas.getContext('2d');
@@ -71,7 +78,7 @@ function updateMiniMap() {
 	}
 
 	context.fillStyle = '#f00';
-	var shipIDs = Crafty('faction2');
+	var shipIDs = Crafty('notFaction1');
 	for (var i = 0; i < shipIDs.length; i++) {
 		var ship = Crafty(shipIDs[i]);
 		fillDot(ship.x, ship.y, 3, 3);

@@ -5,7 +5,7 @@ function initCrafty_Ships() {
 		readyToFire: true,
 
 		Ship: function (x, y, type, faction) {
-			this.requires('2D, ' + RENDERING_MODE + ', Collision, Delay, solid, ' + type + ',' + faction)
+			this.requires('2D, ' + RENDERING_MODE + ', Collision, Delay, solid, faction' + faction + ', ' + type)
 				.attr({
 					x: x,
 					y: y,
@@ -29,6 +29,11 @@ function initCrafty_Ships() {
 				})
 				.origin('center')
 
+			for (var i=1;i<=3;i++) {
+				if (i != faction) {
+					this.addComponent('notFaction' + i);
+				}
+			}
 
 			this.velocity = new Crafty.math.Vector2D(0, 0);
 			this.direction = new Crafty.math.Vector2D(0, 0);
@@ -88,10 +93,11 @@ function initCrafty_Ships() {
 
 	Crafty.c('PlayerShip', {
 		hp: 3,
+		maxHealth: 3,
 
 		PlayerShip: function (x, y) {
 			this.requires('Keyboard, Ship')
-				.Ship(x, y, 'ship', 'faction1')
+				.Ship(x, y, 'ship', 1)
 				.bind('EnterFrame', function (frameObj) {
 					if (this.isDown(Crafty.keys.UP_ARROW) || this.isDown(Crafty.keys.W)) {
 						this.velocity.add(new Crafty.math.Vector2D(this.direction.x * 0.05, this.direction.y * 0.05));
@@ -121,7 +127,7 @@ function initCrafty_Ships() {
 					}
 
 					if (frameObj.frame % 10 == 0) {
-						g_game.socket.emit('updateLoc', { x: g_game.player.x, y: g_game.player.y, direction: g_game.player.direction, velocity: { x: g_game.player.velocity.x, y : g_game.player.velocity.y }});
+						g_game.socket.emit('updateLoc', { id: g_game.playerId, x: g_game.player.x, y: g_game.player.y, direction: g_game.player.direction, velocity: { x: g_game.player.velocity.x, y : g_game.player.velocity.y }});
 					};
 
 					//if (frameObj.frame % 10 == 0) {
@@ -156,14 +162,15 @@ function initCrafty_Ships() {
 		},
 		changeAttrib: function(data) {
 			this.hp = data.hp;
-			console.log(this.hp);
+			showHealth(this.hp, this.maxHealth);
 		},
 		fireCannon: function() {
 			if (this.readyToFire) {
 				this.readyToFire = false;
 				var bulletId = g_game.getNextBulletId();
-				Crafty.e('MyBullet').MyBullet(this.x, this.y, this.direction, this.velocity, this[0], {sprite: 'plasma'}).bulletId = bulletId;
+				Crafty.e('MyBullet').MyBullet(this.x, this.y, this.direction, this.velocity, this[0], g_game.playerId, {sprite: 'plasma'}).bulletId = bulletId;
 				g_game.socket.emit('fire', {
+					ownerId: g_game.playerId,
 					x: this.x,
 					y: this.y,
 					bulletId: bulletId,
@@ -178,60 +185,92 @@ function initCrafty_Ships() {
 		}
 	});
 
+	Crafty.c('AIShip', {
+		maxSpeed: 3,
 
-	Crafty.c('MyBullet', {
-		MyBullet: function (x, y, dir, vel, sourceId, def) {
-			this.requires('Bullet, Collision')
-				.Bullet(x, y, dir, vel, def)
-				.collision()
+		AIShip: function (x, y, type, faction, home) {
+			this.requires('Ship')
+				.Ship(x, y, type, faction)
 				.bind('EnterFrame', function (frameObj) {
-					var hits = this.hit('solid');
-					if (hits) {
-						if (hits[0].obj[0] != sourceId) {
-							//if (hits[0].obj.has('Ship')) {
-							//	hits[0].obj.takeDamage(def.damage);
-							//}
-							//g_game.sounds[def.sound_hit].play();
-							g_game.socket.emit('hit', { bulletId: this.bulletId, shipId: hits[0].obj.shipId });
-							Crafty.e('Debris').Debris(this.x, this.y, hits[0].obj.velocity);
-							this.destroy();
-							return;
+					var enemies = Crafty('notFaction' + faction);
+					var bEnemyFound = false;
+					for (var i=0;!bEnemyFound && i<enemies.length;i++) {
+
+						var target = Crafty(enemies[0]);
+						// turn towards enemy
+						var dx = target.x - this.x;
+						var dy = target.y - this.y;
+						var dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+						if (dist < 1200) {
+							bEnemyFound = true;
+							this.chaseTarget(target, frameObj);
+							var angleToTarget = Math.atan2(dy, dx);
+							var rotationRads = this.rotation * Math.PI / 180;
+							var angleDiff = rotationRads - angleToTarget;
+							angleDiff = (angleDiff + Math.PI) % (Math.PI * 2) - Math.PI;
+							// fire?
+							if (Math.abs(angleDiff) < Math.PI / 4 && this.readyToFire) {
+								this.fireCannon();
+							}
 						}
 					}
-				});
-
-			return this;
-		}
-
-	});
-
-	Crafty.c('Bullet', {
-		range: 1000,
-		speed: 10,
-
-		Bullet: function (x, y, dir, vel, def) {
-			this.requires('2D, ' + RENDERING_MODE + ', ' + def.sprite)
-				.attr({
-					x: x,
-					y: y,
-					z: 100
-				})
-				.bind('EnterFrame', function (frameObj) {
-					this.attr({
-						x: this.x + this.velocity.x,
-						y: this.y + this.velocity.y
-					});
-					this.travelled += Math.sqrt(Math.pow(this.velocity.x, 2) + Math.pow(this.velocity.y, 2));
-					if (this.travelled > this.range) {
-						this.destroy();
+					if (!bEnemyFound) {
+						// go home
+						this.chaseTarget(home, frameObj);
 					}
+
+					if (frameObj.frame % 11 == 0) {
+						g_game.socket.emit('updateLoc', { id: g_game.enemyId, x: this.x, y: this.y, direction: this.direction, velocity: { x: this.velocity.x, y : this.velocity.y }});
+					};
+
 				})
 
-			this.velocity = new Crafty.math.Vector2D(vel.x + dir.x * this.speed, vel.y + dir.y * this.speed);
-			this.travelled = 0;
-
-			//g_game.sounds[def.sound_shoot].play();
 			return this;
+		},
+		chaseTarget: function(target, frameObj) {
+			// turn towards enemy
+			var dx = target.x - this.x;
+			var dy = target.y - this.y;
+			var dist = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
+			var angleToTarget = Math.atan2(dy, dx);
+			var rotationRads = this.rotation * Math.PI / 180;
+			var angleDiff = rotationRads - angleToTarget;
+			angleDiff = (angleDiff + Math.PI) % (Math.PI * 2) - Math.PI;
+			if (angleDiff < 0) {
+				this.turn(1);
+			} else if (angleDiff > 0) {
+				this.turn(-1);
+			}
+			// chase?
+			if (Math.abs(angleDiff) < Math.PI / 4 && dist > 200) {
+				this.velocity.add(new Crafty.math.Vector2D(this.direction.x * 0.02, this.direction.y * 0.02));
+				if (frameObj.frame % 10 == 0) {
+					g_game.exhaustEffects.getNextEffect().show(this.x + this.w / 2, this.y + this.h / 2);
+				}
+			}
+
+		},
+		changeAttrib: function(data) {
+			this.hp = data.hp;
+		},
+		fireCannon: function() {
+			if (this.readyToFire) {
+				this.readyToFire = false;
+				var bulletId = g_game.getNextBulletId();
+				Crafty.e('MyBullet').MyBullet(this.x, this.y, this.direction, new Crafty.math.Vector2D(0, 0), this[0], g_game.enemyId, {sprite: 'plasma'}).bulletId = bulletId;
+				g_game.socket.emit('fire', {
+					ownerId: g_game.enemyId,
+					x: this.x,
+					y: this.y,
+					bulletId: bulletId,
+					direction: this.direction,
+					velocity: { x: this.velocity.x, y : this.velocity.y }
+				});
+				var self = this;
+				this.delay(function() {
+					this.readyToFire = true;
+				}, 500);
+			}
 		}
 	});
 

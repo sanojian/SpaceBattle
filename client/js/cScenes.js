@@ -48,6 +48,7 @@ function initCrafty_Scenes() {
 			Crafty.sprite(TILE_SIZE, './images/lofi_scifi_v2_x' + ZOOM + '.png', {
 				ship: [2 , 34],
 				ship2: [10, 34],
+				ship3: [14, 34],
 				debris: [28, 79]
 			});
 
