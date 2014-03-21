@@ -28,7 +28,7 @@ function Comm() {
 			g_game.playerId = data.id;
 			g_game.enemyId = data.enemyId;
 
-			g_game.enemyShip = Crafty.e('AIShip').AIShip(500, 100, 'ship2', 3, g_game.planets[0]);
+			g_game.enemyShip = Crafty.e('AIShip').AIShip(g_game.planets[2].x, g_game.planets[2].y, 'ship2', 3, g_game.planets[2]);
 			g_game.player.shipId = g_game.playerId;
 			g_game.enemyShip.shipId = g_game.enemyId;
 		});

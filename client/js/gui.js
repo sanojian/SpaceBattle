@@ -69,6 +69,14 @@ function updateMiniMap() {
 		}
 	};
 
+	// planets
+	context.fillStyle = '#fff';
+	var planetIDs = Crafty('Planet');
+	for (var i = 0; i < planetIDs.length; i++) {
+		var planet = Crafty(planetIDs[i]);
+		fillDot(planet.x, planet.y, 6, 6);
+	}
+
 	// ships
 	context.fillStyle = '#0f0';
 	var shipIDs = Crafty('faction1');
@@ -87,13 +95,5 @@ function updateMiniMap() {
 	// player
 	context.fillStyle = '#00f';
 	context.fillRect(24 * 3, 24 * 3, 3, 3);
-
-	// planets
-	context.fillStyle = '#fff';
-	var planetIDs = Crafty('Planet');
-	for (var i = 0; i < planetIDs.length; i++) {
-		var planet = Crafty(planetIDs[i]);
-		fillDot(planet.x, planet.y, 6, 6);
-	}
 
 }

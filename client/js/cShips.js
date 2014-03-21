@@ -1,7 +1,7 @@
 function initCrafty_Ships() {
 
 	Crafty.c('Ship', {
-		maxSpeed: 6,
+		maxSpeed: 4,
 		readyToFire: true,
 
 		Ship: function (x, y, type, faction) {

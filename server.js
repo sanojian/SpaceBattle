@@ -16,7 +16,7 @@ app.use(express.methodOverride());
 app.use(express.cookieParser('your secret here'));
 app.use(express.session());
 app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname + '/public'), { maxAge: 86400000 });
 
 // routes
 app.get('/battle', function(req, res) {

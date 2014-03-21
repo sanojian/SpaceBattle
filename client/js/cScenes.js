@@ -14,7 +14,7 @@ function initCrafty_Scenes() {
 		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(600, 600, 'planetBig5', 'homePlanet' ));
 		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(700, 500, 'planetMoon1', 'moon' ));
 		//g_game.planets.push(Crafty.e('Planet').Planet(startX - 400, startY + 900, 'planet2' ));
-		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(1700, 200, 'planetBig6', 'alienPlanet' ));
+		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(4500, 2000, 'planetBig6', 'alienPlanet' ));
 
 
 		g_game.player = Crafty.e('PlayerShip').PlayerShip(100, 100);
