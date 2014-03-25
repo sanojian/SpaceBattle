@@ -16,6 +16,7 @@ function init_GUI() {
 }
 
 function showHealth(hp, maxHp) {
+	console.log(hp);
 	var percent = Math.floor(100*hp/maxHp);
 	$('#divHits').css({
 		width: '' + percent + '%'

@@ -16,6 +16,8 @@ function initCrafty_Scenes() {
 		//g_game.planets.push(Crafty.e('Planet').Planet(startX - 400, startY + 900, 'planet2' ));
 		g_game.planets.push(Crafty.e('Planet, planet' + g_game.planets.length).Planet(4500, 2000, 'planetBig6', 'alienPlanet' ));
 
+		Crafty.e('Satellite').Satellite(700, 700);
+
 
 		g_game.player = Crafty.e('PlayerShip').PlayerShip(100, 100);
 		//g_game.player = Crafty.e('Ship').Ship(100, 100, 'ship', 'myFaction');
@@ -49,13 +51,17 @@ function initCrafty_Scenes() {
 				ship: [2 , 34],
 				ship2: [10, 34],
 				ship3: [14, 34],
-				debris: [28, 79]
+
+				debris: [28, 79],
+				pellet: [7, 78],
+				plasma: [8, 78]
+
 			});
 
 			Crafty.sprite(1, './images/lofi_scifi_v2_x' + ZOOM + '.png', {
 				exhaust: [163 * ZOOM, 612 * ZOOM, 1 * ZOOM, 1 * ZOOM],
-				pellet: [7 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
-				plasma: [8 * TILE_SIZE, 78 * TILE_SIZE, TILE_SIZE, TILE_SIZE],
+
+				shield: [11 * TILE_SIZE, 80.5 * TILE_SIZE, TILE_SIZE * 2, TILE_SIZE * 2],
 
 				planetMoon1: [1 * TILE_SIZE, 83 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE],
 				planetMoon2: [4 * TILE_SIZE, 83 * TILE_SIZE, 3 * TILE_SIZE, 3 * TILE_SIZE],

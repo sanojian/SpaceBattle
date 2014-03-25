@@ -26,11 +26,24 @@ function initCrafty_World() {
 
 				})
 
+			var vel = vel || { x: 0, y: 0 };
+
 			this.velocity = new Crafty.math.Vector2D(vel.x + 0.1  - 0.2*Math.random(), vel.y + 0.1 -0.2*Math.random());
 
 			this.delay(function() {
 				this.destroy();
 			}, 1000 + 500*Math.random());
+
+			return this;
+		}
+	});
+
+	Crafty.c('Satellite', {
+
+		Satellite: function (x, y) {
+			this.requires('2D, ' + RENDERING_MODE + ', shield, Collision, solid')
+				.attr({ x: x, y: y })
+				.collision();
 
 			return this;
 		}
